@@ -48,16 +48,22 @@ var RangeInputComponent = (function () {
         });
         this.createObservable(this.hi)
             .subscribe(function (val) {
+            if (_this._optionValue === null)
+                _this._optionValue = _this._optionsList[0].value;
             if (val && val.toString().length > 0)
                 _this._optionsList = _this._rangeSelectOptions;
-            else if (val == "" || val == null)
+            else if (val == "" || val == null) {
                 _this._optionsList = _this._singleSelectOptions;
+                _this._optionValue = null;
+            }
             _this._selectOptions.hi = val;
-            _this._selectOptions.optionsSelector = _this.optionsSelector.value || _this._optionsList[0].value;
+            // this._selectOptions.optionsSelector = this.optionsSelector.value || this._optionsList[0].value;
+            _this._selectOptions.optionsSelector = _this._optionValue || _this._optionsList[0].value;
             _this.onChangeCallback(_this._selectOptions);
         });
         this.createObservable(this.optionsSelector)
             .subscribe(function (val) {
+            _this._optionValue = val;
             _this._selectOptions.optionsSelector = val;
             _this.onChangeCallback(_this._selectOptions);
         });
@@ -71,7 +77,10 @@ var RangeInputComponent = (function () {
         this.onChangeCallback = fn;
     };
     RangeInputComponent.prototype.registerOnTouched = function (fn) {
-        this.onTouchedCallback = fn;
+        this.onTouchedCallback = function () {
+            //this.lo.markAsTouched();
+            fn();
+        };
     };
     RangeInputComponent.prototype.createObservable = function (formControl) {
         return (formControl.valueChanges
@@ -86,9 +95,9 @@ var RangeInputComponent = (function () {
         core_1.Component({
             moduleId: module.id,
             selector: 'rangeInput',
-            template: "\n\t\t<div class=\"form-group\">\n\t\t\t<select class=\"form-control\" [formControl]=\"optionsSelector\">\n\t\t\t\t<option *ngFor=\"let op of _optionsList\" value=\"{{ op.value }}\" \n\t\t\t\t\t\tselected=\"{{ op.selected }}\">{{ op.sign }}</option>\n\t\t\t</select>\n\t\t\t<input type=\"number\" name=\"lo\" class=\"range-low form-control\" [formControl]=\"lo\" />\n\t\t\t<input type=\"number\" name=\"hi\" class=\"range-high form-control\" [formControl]=\"hi\" />\n\t\t</div>\t\t\n\t",
+            template: "\n\t\t<div class=\"form-group\">\n\t\t\t<select class=\"form-control\" [formControl]=\"optionsSelector\">\n\t\t\t\t<option *ngFor=\"let op of _optionsList\" value=\"{{ op.value }}\" \n\t\t\t\t\t\tselected=\"{{ op.selected }}\">{{ op.sign }}</option>\n\t\t\t</select>\n\t\t\t<input type=\"number\" name=\"lo\" class=\"range-low form-control\" [formControl]=\"lo\" />\n\t\t\t<input type=\"number\" name=\"hi\" class=\"range-high form-control\" [formControl]=\"hi\" />\n\t\t\t<div>touched: {{lo.touched}}\n\t\t</div>\t\t\n\t",
             styles: [
-                "\n\t\tselect {\n\t\t\t-webkit-appearance: none;\n    \t\t-moz-appearance: none;\n\t\t\tpadding-right: 15px;\n\t\t\tpadding-left: 5px;\n\t\t\tfont-weight: bold;\n\t\t}\n\n\t\tselect::-ms-expand {\n\t    \tdisplay: none;\n\t\t}\n\n\t\t.form-group {\n\t\t\tdisplay: inline-block;\n    \t\tmargin-bottom: 0;\n    \t\tvertical-align: middle;\n    \t\tmargin-left: 5px;\n\t\t}\n\n\t\t.form-group .form-control {\n\t\t\tdisplay: inline-block;\n    \t\twidth: auto;\n    \t\tvertical-align: middle;\n\t\t}\n\t\t"
+                "\n\t\tselect {\n\t\t\t-webkit-appearance: none;\n    \t\t-moz-appearance: none;\n\t\t\tpadding-right: 15px;\n\t\t\tpadding-left: 5px;\n\t\t\tfont-weight: bold;\n\t\t}\n\n\t\tselect::-ms-expand {\n\t    \tdisplay: none;\n\t\t}\n\n\t\t.form-group {\n\t\t\tdisplay: inline-block;\n    \t\tmargin-bottom: 0;\n    \t\tvertical-align: middle;\n    \t\tmargin-left: 5px;\n    \t\tmargin-right: 5px;\n\t\t}\n\n\t\t.form-group .form-control {\n\t\t\tdisplay: inline-block;\n    \t\twidth: auto;\n    \t\tvertical-align: middle;\n\t\t}\n\t\t"
             ],
             providers: [
                 {

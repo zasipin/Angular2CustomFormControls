@@ -35,6 +35,7 @@ import 'rxjs/add/operator/distinctUntilChanged';
     		margin-bottom: 0;
     		vertical-align: middle;
     		margin-left: 5px;
+    		margin-right: 5px;
 		}
 
 		.form-group .form-control {
@@ -80,6 +81,7 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor {
 			{ text: "интревал", 			sign: "[ ]", value: "in", 	selected: "selected" },
 			{ text: "вне интервала", 		sign: "] [", value: "out", 	selected: "" }
 		];
+	private _optionValue;	
 
 	private _optionsList: Array<any>;	
 
@@ -100,18 +102,26 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor {
 		
 		this.createObservable(this.hi)
 			.subscribe((val) => { 
+				if(this._optionValue === null)
+					this._optionValue = this._optionsList[0].value;
+
 				if(val && val.toString().length > 0)
 					this._optionsList = this._rangeSelectOptions;
 				else if(val == "" || val == null)
+				{
 					this._optionsList = this._singleSelectOptions;	
+					this._optionValue = null;
+				}
 
 				this._selectOptions.hi = val;
-				this._selectOptions.optionsSelector = this.optionsSelector.value || this._optionsList[0].value;
+				// this._selectOptions.optionsSelector = this.optionsSelector.value || this._optionsList[0].value;
+				this._selectOptions.optionsSelector = this._optionValue || this._optionsList[0].value;
 				this.onChangeCallback(this._selectOptions);
 			});
 		
 		this.createObservable(this.optionsSelector)
 			.subscribe((val) => {
+				this._optionValue = val;
 				this._selectOptions.optionsSelector = val;
 				this.onChangeCallback(this._selectOptions);
 			});
@@ -131,7 +141,9 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor {
 	  }
 
 	registerOnTouched(fn: any) {
-        this.onTouchedCallback = fn;
+        this.onTouchedCallback = ()=>{
+        	//this.lo.markAsTouched();
+        	fn()};
     }
 
     private createObservable(formControl: AbstractControl) {
