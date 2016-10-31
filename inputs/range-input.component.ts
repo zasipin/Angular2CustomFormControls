@@ -10,7 +10,7 @@ import 'rxjs/add/operator/distinctUntilChanged';
 		<div class="form-group">
 			<select class="form-control" [formControl]="optionsSelector">
 				<option *ngFor="let op of _optionsList" value="{{ op.value }}" 
-						selected="{{ op.selected }}">{{ op.sign }}</option>
+						[attr.selected]="op.selected">{{ op.sign }}</option>
 			</select>
 			<input type="number" name="lo" class="range-low form-control" [formControl]="lo" />
 			<input type="number" name="hi" class="range-high form-control" [formControl]="hi" />
@@ -54,6 +54,8 @@ import 'rxjs/add/operator/distinctUntilChanged';
 	]
 })
 export class RangeInputComponent implements OnInit, ControlValueAccessor {
+
+	const EQ = "eq";
 	
 	private lo: AbstractControl;
 	private hi: AbstractControl;
@@ -63,27 +65,27 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor {
 	
 	@Input()
 	_selectOptions = {
-		optionsSelector: "eq",
+		optionsSelector: "",
 		lo: "",
 		hi: ""
 	};
 
 	private _singleSelectOptions = [
-			{ text: "отдельное значение", 	sign: "=", 	value: "eq", selected: "selected" },
-			{ text: "больше или равно", 	sign: ">=", value: "ge", selected: "" },
-			{ text: "меньше или равно", 	sign: "<=", value: "le", selected: "" },
-			{ text: "больше", 				sign: ">", 	value: "gt", selected: "" },
-			{ text: "меньше", 				sign: "<", 	value: "lt", selected: "" },
-			{ text: "не равно", 			sign: "<>", value: "ue", selected: "" }
+			{ text: "отдельное значение", 	sign: "=", 	value: "eq", selected: true },
+			{ text: "больше или равно", 	sign: ">=", value: "ge", selected: null },
+			{ text: "меньше или равно", 	sign: "<=", value: "le", selected: null },
+			{ text: "больше", 				sign: ">", 	value: "gt", selected: null },
+			{ text: "меньше", 				sign: "<", 	value: "lt", selected: null },
+			{ text: "не равно", 			sign: "<>", value: "ue", selected: null }
 
 		];
 	private _rangeSelectOptions = [
-			{ text: "интревал", 			sign: "[ ]", value: "in", 	selected: "selected" },
-			{ text: "вне интервала", 		sign: "] [", value: "out", 	selected: "" }
+			{ text: "интревал", 			sign: "[ ]", value: "in", 	selected: true },
+			{ text: "вне интервала", 		sign: "] [", value: "out", 	selected: null }
 		];
-	private _optionValue;	
+	private _prevOptionValue;	
 
-	private _optionsList: Array<any>;	
+	private _optionsList: Array<any> = [ this.EQ ];	
 
 	constructor() {
 		this.lo = new FormControl();
@@ -93,6 +95,7 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor {
 
 	ngOnInit() {
 		this._optionsList = this._singleSelectOptions;	
+		this.setInitialSelectOption();
 
 		this.createObservable(this.lo)
 			.subscribe((val) => {
@@ -102,29 +105,38 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor {
 		
 		this.createObservable(this.hi)
 			.subscribe((val) => { 
-				if(this._optionValue === null)
-					this._optionValue = this._optionsList[0].value;
-
-				if(val && val.toString().length > 0)
-					this._optionsList = this._rangeSelectOptions;
+				if((val || val === 0) && val.toString().length > 0)
+				{
+					if(this._prevOptionValue == null)
+					{	
+						this._optionsList = this._rangeSelectOptions;
+						this._prevOptionValue = val;
+						this.setInitialSelectOption();
+					}
+				}
 				else if(val == "" || val == null)
 				{
 					this._optionsList = this._singleSelectOptions;	
-					this._optionValue = null;
+					this._prevOptionValue = null;
+					this.setInitialSelectOption();
 				}
 
 				this._selectOptions.hi = val;
-				// this._selectOptions.optionsSelector = this.optionsSelector.value || this._optionsList[0].value;
-				this._selectOptions.optionsSelector = this._optionValue || this._optionsList[0].value;
 				this.onChangeCallback(this._selectOptions);
 			});
 		
 		this.createObservable(this.optionsSelector)
 			.subscribe((val) => {
-				this._optionValue = val;
 				this._selectOptions.optionsSelector = val;
 				this.onChangeCallback(this._selectOptions);
 			});
+	}
+
+
+	private setInitialSelectOption()
+	{
+		this.optionsSelector.setValue(this._optionsList[0].value);
+		this._selectOptions.optionsSelector = this._optionsList[0].value;
 	}
 
 	// implementing ControlValueAccessor

@@ -14,24 +14,26 @@ require('rxjs/add/operator/debounceTime');
 require('rxjs/add/operator/distinctUntilChanged');
 var RangeInputComponent = (function () {
     function RangeInputComponent() {
+        this.EQ = "eq";
         this._debounceTime = 400;
         this._selectOptions = {
-            optionsSelector: "eq",
+            optionsSelector: "",
             lo: "",
             hi: ""
         };
         this._singleSelectOptions = [
-            { text: "отдельное значение", sign: "=", value: "eq", selected: "selected" },
-            { text: "больше или равно", sign: ">=", value: "ge", selected: "" },
-            { text: "меньше или равно", sign: "<=", value: "le", selected: "" },
-            { text: "больше", sign: ">", value: "gt", selected: "" },
-            { text: "меньше", sign: "<", value: "lt", selected: "" },
-            { text: "не равно", sign: "<>", value: "ue", selected: "" }
+            { text: "отдельное значение", sign: "=", value: "eq", selected: true },
+            { text: "больше или равно", sign: ">=", value: "ge", selected: null },
+            { text: "меньше или равно", sign: "<=", value: "le", selected: null },
+            { text: "больше", sign: ">", value: "gt", selected: null },
+            { text: "меньше", sign: "<", value: "lt", selected: null },
+            { text: "не равно", sign: "<>", value: "ue", selected: null }
         ];
         this._rangeSelectOptions = [
-            { text: "интревал", sign: "[ ]", value: "in", selected: "selected" },
-            { text: "вне интервала", sign: "] [", value: "out", selected: "" }
+            { text: "интревал", sign: "[ ]", value: "in", selected: true },
+            { text: "вне интервала", sign: "] [", value: "out", selected: null }
         ];
+        this._optionsList = [this.EQ];
         this.onChangeCallback = function (_) { };
         this.onTouchedCallback = function () { };
         this.lo = new forms_1.FormControl();
@@ -41,6 +43,7 @@ var RangeInputComponent = (function () {
     RangeInputComponent.prototype.ngOnInit = function () {
         var _this = this;
         this._optionsList = this._singleSelectOptions;
+        this.setInitialSelectOption();
         this.createObservable(this.lo)
             .subscribe(function (val) {
             _this._selectOptions.lo = val;
@@ -48,25 +51,30 @@ var RangeInputComponent = (function () {
         });
         this.createObservable(this.hi)
             .subscribe(function (val) {
-            if (_this._optionValue === null)
-                _this._optionValue = _this._optionsList[0].value;
-            if (val && val.toString().length > 0)
-                _this._optionsList = _this._rangeSelectOptions;
+            if ((val || val === 0) && val.toString().length > 0) {
+                if (_this._prevOptionValue == null) {
+                    _this._optionsList = _this._rangeSelectOptions;
+                    _this._prevOptionValue = val;
+                    _this.setInitialSelectOption();
+                }
+            }
             else if (val == "" || val == null) {
                 _this._optionsList = _this._singleSelectOptions;
-                _this._optionValue = null;
+                _this._prevOptionValue = null;
+                _this.setInitialSelectOption();
             }
             _this._selectOptions.hi = val;
-            // this._selectOptions.optionsSelector = this.optionsSelector.value || this._optionsList[0].value;
-            _this._selectOptions.optionsSelector = _this._optionValue || _this._optionsList[0].value;
             _this.onChangeCallback(_this._selectOptions);
         });
         this.createObservable(this.optionsSelector)
             .subscribe(function (val) {
-            _this._optionValue = val;
             _this._selectOptions.optionsSelector = val;
             _this.onChangeCallback(_this._selectOptions);
         });
+    };
+    RangeInputComponent.prototype.setInitialSelectOption = function () {
+        this.optionsSelector.setValue(this._optionsList[0].value);
+        this._selectOptions.optionsSelector = this._optionsList[0].value;
     };
     // implementing ControlValueAccessor
     RangeInputComponent.prototype.writeValue = function (value) {
@@ -95,7 +103,7 @@ var RangeInputComponent = (function () {
         core_1.Component({
             moduleId: module.id,
             selector: 'rangeInput',
-            template: "\n\t\t<div class=\"form-group\">\n\t\t\t<select class=\"form-control\" [formControl]=\"optionsSelector\">\n\t\t\t\t<option *ngFor=\"let op of _optionsList\" value=\"{{ op.value }}\" \n\t\t\t\t\t\tselected=\"{{ op.selected }}\">{{ op.sign }}</option>\n\t\t\t</select>\n\t\t\t<input type=\"number\" name=\"lo\" class=\"range-low form-control\" [formControl]=\"lo\" />\n\t\t\t<input type=\"number\" name=\"hi\" class=\"range-high form-control\" [formControl]=\"hi\" />\n\t\t\t<div>touched: {{lo.touched}}\n\t\t</div>\t\t\n\t",
+            template: "\n\t\t<div class=\"form-group\">\n\t\t\t<select class=\"form-control\" [formControl]=\"optionsSelector\">\n\t\t\t\t<option *ngFor=\"let op of _optionsList\" value=\"{{ op.value }}\" \n\t\t\t\t\t\t[attr.selected]=\"op.selected\">{{ op.sign }}</option>\n\t\t\t</select>\n\t\t\t<input type=\"number\" name=\"lo\" class=\"range-low form-control\" [formControl]=\"lo\" />\n\t\t\t<input type=\"number\" name=\"hi\" class=\"range-high form-control\" [formControl]=\"hi\" />\n\t\t</div>\t\t\n\t",
             styles: [
                 "\n\t\tselect {\n\t\t\t-webkit-appearance: none;\n    \t\t-moz-appearance: none;\n\t\t\tpadding-right: 15px;\n\t\t\tpadding-left: 5px;\n\t\t\tfont-weight: bold;\n\t\t}\n\n\t\tselect::-ms-expand {\n\t    \tdisplay: none;\n\t\t}\n\n\t\t.form-group {\n\t\t\tdisplay: inline-block;\n    \t\tmargin-bottom: 0;\n    \t\tvertical-align: middle;\n    \t\tmargin-left: 5px;\n    \t\tmargin-right: 5px;\n\t\t}\n\n\t\t.form-group .form-control {\n\t\t\tdisplay: inline-block;\n    \t\twidth: auto;\n    \t\tvertical-align: middle;\n\t\t}\n\t\t"
             ],
