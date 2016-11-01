@@ -1,13 +1,16 @@
 import { Component, OnInit, forwardRef, Input, OnChanges } from '@angular/core';
 import { FormControl, AbstractControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { RangeValidation } from './input-validations';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
+
+const EQ = "eq";
 
 @Component({
 	moduleId: module.id,
 	selector: 'rangeInput',
 	template: `
-		<div class="form-group">
+		<div class="form-group" [class.error]="this._selectOptions.errors">
 			<select class="form-control" [formControl]="optionsSelector">
 				<option *ngFor="let op of _optionsList" value="{{ op.value }}" 
 						[attr.selected]="op.selected">{{ op.sign }}</option>
@@ -55,8 +58,6 @@ import 'rxjs/add/operator/distinctUntilChanged';
 })
 export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChanges {
 
-	const EQ = "eq";
-	
 	private lo: AbstractControl;
 	private hi: AbstractControl;
 	private optionsSelector: AbstractControl;
@@ -65,9 +66,9 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 	
 	@Input()
 	_selectOptions = {
-		optionsSelector: "",
-		lo: "",
-		hi: ""
+		optionsSelector: EQ,
+		lo: null,
+		hi: null
 	};
 
 	private _singleSelectOptions = [
@@ -85,7 +86,7 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 		];
 	private _prevOptionValue;	
 
-	private _optionsList: Array<any> = [ this.EQ ];	
+	private _optionsList: Array<any> = [ EQ ];	
 
 	constructor() {
 		this.lo = new FormControl();
@@ -134,8 +135,7 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 
 	ngOnChanges() {
 		console.log("on changes called");
-	}
-	
+	}	
 
 	private setInitialSelectOption()
 	{
@@ -154,15 +154,22 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 
 	registerOnChange(fn) {
 	    // this.onChangeCallback = fn;
-	    this.onChangeCallback = () => {
-	    	console.log("changes called");
-	    	fn()};
+	    this.onChangeCallback = function(arg) {
+//	    	console.log("changes called");
+	    	// let args = Array.prototype.slice.call(arguments)
+	    	// fn.apply(this, args);
+
+	    	arg = RangeValidation.validateLoHiObj(arg);
+
+	    	fn(arg);
+	    };
 	  }
 
 	registerOnTouched(fn: any) {
-        this.onTouchedCallback = ()=>{
-        	//this.lo.markAsTouched();
-        	fn()};
+		this.onTouchedCallback = fn;
+        // this.onTouchedCallback = ()=>{
+        // 	//this.lo.markAsTouched();
+        // 	fn()};
     }
 
     private createObservable(formControl: AbstractControl) {
@@ -171,19 +178,3 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 				.distinctUntilChanged());
     }
 }
-
-// private class RangeValidation {
-// 	static validateLoHi(lo, hi){
-// 		let errors = { };
-// 		try{
-// 			lo = +lo;
-// 			hi = +hi;
-// 			if(hi > lo)
-// 				errors['loHi'] = {lo: lo, hi: hi};
-// 		}
-// 		catch {
-// 			errors['notNumber'] = {numbers: "" + lo + " " + hi};
-// 		}
-// 		return errors;
-// 	}
-// }

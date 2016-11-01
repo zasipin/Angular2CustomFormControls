@@ -10,16 +10,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var forms_1 = require('@angular/forms');
+var input_validations_1 = require('./input-validations');
 require('rxjs/add/operator/debounceTime');
 require('rxjs/add/operator/distinctUntilChanged');
+var EQ = "eq";
 var RangeInputComponent = (function () {
     function RangeInputComponent() {
-        this.EQ = "eq";
         this._debounceTime = 400;
         this._selectOptions = {
-            optionsSelector: "",
-            lo: "",
-            hi: ""
+            optionsSelector: EQ,
+            lo: null,
+            hi: null
         };
         this._singleSelectOptions = [
             { text: "отдельное значение", sign: "=", value: "eq", selected: true },
@@ -33,7 +34,7 @@ var RangeInputComponent = (function () {
             { text: "интревал", sign: "[ ]", value: "in", selected: true },
             { text: "вне интервала", sign: "] [", value: "out", selected: null }
         ];
-        this._optionsList = [this.EQ];
+        this._optionsList = [EQ];
         this.onChangeCallback = function (_) { };
         this.onTouchedCallback = function () { };
         this.lo = new forms_1.FormControl();
@@ -86,16 +87,19 @@ var RangeInputComponent = (function () {
     };
     RangeInputComponent.prototype.registerOnChange = function (fn) {
         // this.onChangeCallback = fn;
-        this.onChangeCallback = function () {
-            console.log("changes called");
-            fn();
+        this.onChangeCallback = function (arg) {
+            //	    	console.log("changes called");
+            // let args = Array.prototype.slice.call(arguments)
+            // fn.apply(this, args);
+            arg = input_validations_1.RangeValidation.validateLoHiObj(arg);
+            fn(arg);
         };
     };
     RangeInputComponent.prototype.registerOnTouched = function (fn) {
-        this.onTouchedCallback = function () {
-            //this.lo.markAsTouched();
-            fn();
-        };
+        this.onTouchedCallback = fn;
+        // this.onTouchedCallback = ()=>{
+        // 	//this.lo.markAsTouched();
+        // 	fn()};
     };
     RangeInputComponent.prototype.createObservable = function (formControl) {
         return (formControl.valueChanges
@@ -110,7 +114,7 @@ var RangeInputComponent = (function () {
         core_1.Component({
             moduleId: module.id,
             selector: 'rangeInput',
-            template: "\n\t\t<div class=\"form-group\">\n\t\t\t<select class=\"form-control\" [formControl]=\"optionsSelector\">\n\t\t\t\t<option *ngFor=\"let op of _optionsList\" value=\"{{ op.value }}\" \n\t\t\t\t\t\t[attr.selected]=\"op.selected\">{{ op.sign }}</option>\n\t\t\t</select>\n\t\t\t<input type=\"number\" name=\"lo\" class=\"range-low form-control\" [formControl]=\"lo\" />\n\t\t\t<input type=\"number\" name=\"hi\" class=\"range-high form-control\" [formControl]=\"hi\" />\n\t\t</div>\t\t\n\t",
+            template: "\n\t\t<div class=\"form-group\" [class.error]=\"this._selectOptions.errors\">\n\t\t\t<select class=\"form-control\" [formControl]=\"optionsSelector\">\n\t\t\t\t<option *ngFor=\"let op of _optionsList\" value=\"{{ op.value }}\" \n\t\t\t\t\t\t[attr.selected]=\"op.selected\">{{ op.sign }}</option>\n\t\t\t</select>\n\t\t\t<input type=\"number\" name=\"lo\" class=\"range-low form-control\" [formControl]=\"lo\" />\n\t\t\t<input type=\"number\" name=\"hi\" class=\"range-high form-control\" [formControl]=\"hi\" />\n\t\t</div>\t\t\n\t",
             styles: [
                 "\n\t\tselect {\n\t\t\t-webkit-appearance: none;\n    \t\t-moz-appearance: none;\n\t\t\tpadding-right: 15px;\n\t\t\tpadding-left: 5px;\n\t\t\tfont-weight: bold;\n\t\t}\n\n\t\tselect::-ms-expand {\n\t    \tdisplay: none;\n\t\t}\n\n\t\t.form-group {\n\t\t\tdisplay: inline-block;\n    \t\tmargin-bottom: 0;\n    \t\tvertical-align: middle;\n    \t\tmargin-left: 5px;\n    \t\tmargin-right: 5px;\n\t\t}\n\n\t\t.form-group .form-control {\n\t\t\tdisplay: inline-block;\n    \t\twidth: auto;\n    \t\tvertical-align: middle;\n\t\t}\n\t\t"
             ],
@@ -127,19 +131,4 @@ var RangeInputComponent = (function () {
     return RangeInputComponent;
 }());
 exports.RangeInputComponent = RangeInputComponent;
-// private class RangeValidation {
-// 	static validateLoHi(lo, hi){
-// 		let errors = { };
-// 		try{
-// 			lo = +lo;
-// 			hi = +hi;
-// 			if(hi > lo)
-// 				errors['loHi'] = {lo: lo, hi: hi};
-// 		}
-// 		catch {
-// 			errors['notNumber'] = {numbers: "" + lo + " " + hi};
-// 		}
-// 		return errors;
-// 	}
-// } 
 //# sourceMappingURL=range-input.component.js.map
