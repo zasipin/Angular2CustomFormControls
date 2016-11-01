@@ -10,7 +10,7 @@ const EQ = "eq";
 	moduleId: module.id,
 	selector: 'rangeInput',
 	template: `
-		<div class="form-group" [class.error]="this._selectOptions.errors">
+		<div class="form-group" [class.has-error]="this._selectOptions.errors">
 			<select class="form-control" [formControl]="optionsSelector">
 				<option *ngFor="let op of _optionsList" value="{{ op.value }}" 
 						[attr.selected]="op.selected">{{ op.sign }}</option>
