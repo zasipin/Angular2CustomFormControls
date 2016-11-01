@@ -5,17 +5,23 @@ var RangeValidation = (function () {
     RangeValidation.validateLoHi = function (lo, hi) {
         var errors;
         try {
-            lo = +lo;
-            if (hi !== null) {
-                hi = +hi;
-                if (hi < lo) {
-                    errors = {};
-                    errors['loHi'] = { lo: lo, hi: hi };
+            // lo = +lo;
+            if (lo !== null) {
+                if (hi !== null) {
+                    hi = +hi;
+                    if (hi < lo) {
+                        errors = errors || {};
+                        errors['loHi'] = { lo: lo, hi: hi };
+                    }
                 }
+            }
+            if (lo === null && hi !== null) {
+                errors = errors || {};
+                errors['noLo'] = { lo: lo, hi: hi };
             }
         }
         catch (err) {
-            errors = {};
+            errors = errors || {};
             errors['notNumber'] = { numbers: "" + lo + " " + hi };
         }
         return errors;
@@ -26,7 +32,7 @@ var RangeValidation = (function () {
         var errors;
         errors = RangeValidation.validateLoHi(lo, hi);
         // if(errors)
-        obj['errors'] = errors;
+        obj.errors = errors;
         return obj;
     };
     return RangeValidation;

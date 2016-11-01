@@ -68,7 +68,8 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 	_selectOptions = {
 		optionsSelector: EQ,
 		lo: null,
-		hi: null
+		hi: null,
+		valid: true
 	};
 
 	private _singleSelectOptions = [
@@ -154,13 +155,13 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 
 	registerOnChange(fn) {
 	    // this.onChangeCallback = fn;
+	    let that = this;
 	    this.onChangeCallback = function(arg) {
 //	    	console.log("changes called");
 	    	// let args = Array.prototype.slice.call(arguments)
 	    	// fn.apply(this, args);
 
-	    	arg = RangeValidation.validateLoHiObj(arg);
-
+	    	arg = that.validateObj(arg);
 	    	fn(arg);
 	    };
 	  }
@@ -176,5 +177,11 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
     	return (formControl.valueChanges
     			.debounceTime(this._debounceTime)
 				.distinctUntilChanged());
+    }
+
+    private validateObj(obj) {
+		obj = RangeValidation.validateLoHiObj(obj);
+		obj.valid = !obj.errors;// ? false : true;
+		return obj;
     }
 }

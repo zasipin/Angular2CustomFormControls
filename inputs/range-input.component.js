@@ -20,7 +20,8 @@ var RangeInputComponent = (function () {
         this._selectOptions = {
             optionsSelector: EQ,
             lo: null,
-            hi: null
+            hi: null,
+            valid: true
         };
         this._singleSelectOptions = [
             { text: "отдельное значение", sign: "=", value: "eq", selected: true },
@@ -87,11 +88,12 @@ var RangeInputComponent = (function () {
     };
     RangeInputComponent.prototype.registerOnChange = function (fn) {
         // this.onChangeCallback = fn;
+        var that = this;
         this.onChangeCallback = function (arg) {
             //	    	console.log("changes called");
             // let args = Array.prototype.slice.call(arguments)
             // fn.apply(this, args);
-            arg = input_validations_1.RangeValidation.validateLoHiObj(arg);
+            arg = that.validateObj(arg);
             fn(arg);
         };
     };
@@ -105,6 +107,11 @@ var RangeInputComponent = (function () {
         return (formControl.valueChanges
             .debounceTime(this._debounceTime)
             .distinctUntilChanged());
+    };
+    RangeInputComponent.prototype.validateObj = function (obj) {
+        obj = input_validations_1.RangeValidation.validateLoHiObj(obj);
+        obj.valid = !obj.errors; // ? false : true;
+        return obj;
     };
     __decorate([
         core_1.Input(), 
