@@ -72,6 +72,9 @@ var RangeInputComponent = (function () {
             _this.onChangeCallback(_this._selectOptions);
         });
     };
+    RangeInputComponent.prototype.ngOnChanges = function () {
+        console.log("on changes called");
+    };
     RangeInputComponent.prototype.setInitialSelectOption = function () {
         this.optionsSelector.setValue(this._optionsList[0].value);
         this._selectOptions.optionsSelector = this._optionsList[0].value;
@@ -82,7 +85,11 @@ var RangeInputComponent = (function () {
             this._selectOptions = Object.assign(this._selectOptions, value);
     };
     RangeInputComponent.prototype.registerOnChange = function (fn) {
-        this.onChangeCallback = fn;
+        // this.onChangeCallback = fn;
+        this.onChangeCallback = function () {
+            console.log("changes called");
+            fn();
+        };
     };
     RangeInputComponent.prototype.registerOnTouched = function (fn) {
         this.onTouchedCallback = function () {
@@ -120,4 +127,19 @@ var RangeInputComponent = (function () {
     return RangeInputComponent;
 }());
 exports.RangeInputComponent = RangeInputComponent;
+// private class RangeValidation {
+// 	static validateLoHi(lo, hi){
+// 		let errors = { };
+// 		try{
+// 			lo = +lo;
+// 			hi = +hi;
+// 			if(hi > lo)
+// 				errors['loHi'] = {lo: lo, hi: hi};
+// 		}
+// 		catch {
+// 			errors['notNumber'] = {numbers: "" + lo + " " + hi};
+// 		}
+// 		return errors;
+// 	}
+// } 
 //# sourceMappingURL=range-input.component.js.map

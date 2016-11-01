@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, OnChanges } from '@angular/core';
 import { FormControl, AbstractControl, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
@@ -53,7 +53,7 @@ import 'rxjs/add/operator/distinctUntilChanged';
 	    }
 	]
 })
-export class RangeInputComponent implements OnInit, ControlValueAccessor {
+export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChanges {
 
 	const EQ = "eq";
 	
@@ -132,6 +132,10 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor {
 			});
 	}
 
+	ngOnChanges() {
+		console.log("on changes called");
+	}
+	
 
 	private setInitialSelectOption()
 	{
@@ -149,7 +153,10 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor {
   	private onTouchedCallback = () => {};
 
 	registerOnChange(fn) {
-	    this.onChangeCallback = fn;
+	    // this.onChangeCallback = fn;
+	    this.onChangeCallback = () => {
+	    	console.log("changes called");
+	    	fn()};
 	  }
 
 	registerOnTouched(fn: any) {
@@ -164,3 +171,19 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor {
 				.distinctUntilChanged());
     }
 }
+
+// private class RangeValidation {
+// 	static validateLoHi(lo, hi){
+// 		let errors = { };
+// 		try{
+// 			lo = +lo;
+// 			hi = +hi;
+// 			if(hi > lo)
+// 				errors['loHi'] = {lo: lo, hi: hi};
+// 		}
+// 		catch {
+// 			errors['notNumber'] = {numbers: "" + lo + " " + hi};
+// 		}
+// 		return errors;
+// 	}
+// }
