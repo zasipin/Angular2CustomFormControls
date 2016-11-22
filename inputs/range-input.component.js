@@ -49,7 +49,8 @@ var RangeInputComponent = (function () {
         this.createObservable(this.lo)
             .subscribe(function (val) {
             _this._selectOptions.lo = val;
-            _this.onChangeCallback(_this._selectOptions);
+            // this.onChangeCallback(this._selectOptions);
+            _this.callChange(_this._selectOptions);
         });
         this.createObservable(this.hi)
             .subscribe(function (val) {
@@ -66,12 +67,14 @@ var RangeInputComponent = (function () {
                 _this.setInitialSelectOption();
             }
             _this._selectOptions.hi = val;
-            _this.onChangeCallback(_this._selectOptions);
+            // this.onChangeCallback(this._selectOptions);
+            _this.callChange(_this._selectOptions);
         });
         this.createObservable(this.optionsSelector)
             .subscribe(function (val) {
             _this._selectOptions.optionsSelector = val;
-            _this.onChangeCallback(_this._selectOptions);
+            // this.onChangeCallback(this._selectOptions);
+            _this.callChange(_this._selectOptions);
         });
     };
     RangeInputComponent.prototype.ngOnChanges = function () {
@@ -113,6 +116,9 @@ var RangeInputComponent = (function () {
         obj.valid = !obj.errors; // ? false : true;
         return obj;
     };
+    RangeInputComponent.prototype.callChange = function (selOptions) {
+        this.onChangeCallback(Object.assign(new SelectOptions(), selOptions));
+    };
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)
@@ -138,4 +144,13 @@ var RangeInputComponent = (function () {
     return RangeInputComponent;
 }());
 exports.RangeInputComponent = RangeInputComponent;
+var SelectOptions = (function () {
+    function SelectOptions() {
+        this.optionsSelector = EQ;
+        this.lo = null;
+        this.hi = null;
+        this.valid = true;
+    }
+    return SelectOptions;
+}());
 //# sourceMappingURL=range-input.component.js.map

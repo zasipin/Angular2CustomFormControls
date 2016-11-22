@@ -102,7 +102,8 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 		this.createObservable(this.lo)
 			.subscribe((val) => {
 				this._selectOptions.lo = val;
-				this.onChangeCallback(this._selectOptions);
+				// this.onChangeCallback(this._selectOptions);
+				this.callChange(this._selectOptions);
 			});
 		
 		this.createObservable(this.hi)
@@ -124,13 +125,15 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 				}
 
 				this._selectOptions.hi = val;
-				this.onChangeCallback(this._selectOptions);
+				// this.onChangeCallback(this._selectOptions);
+				this.callChange(this._selectOptions);
 			});
 		
 		this.createObservable(this.optionsSelector)
 			.subscribe((val) => {
 				this._selectOptions.optionsSelector = val;
-				this.onChangeCallback(this._selectOptions);
+				// this.onChangeCallback(this._selectOptions);
+				this.callChange(this._selectOptions);
 			});
 	}
 
@@ -184,4 +187,15 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 		obj.valid = !obj.errors;// ? false : true;
 		return obj;
     }
+
+    private callChange(selOptions){
+    	this.onChangeCallback(Object.assign(new SelectOptions(), selOptions));
+    }
+}
+
+class SelectOptions {
+		optionsSelector = EQ;
+		lo = null;
+		hi = null;
+		valid = true
 }
