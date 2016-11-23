@@ -78,7 +78,7 @@ var RangeInputComponent = (function () {
         });
     };
     RangeInputComponent.prototype.ngOnChanges = function () {
-        console.log("on changes called");
+        // console.log("on changes called");
     };
     RangeInputComponent.prototype.setInitialSelectOption = function () {
         this.optionsSelector.setValue(this._optionsList[0].value);
@@ -117,11 +117,12 @@ var RangeInputComponent = (function () {
         return obj;
     };
     RangeInputComponent.prototype.callChange = function (selOptions) {
-        this.onChangeCallback(Object.assign(new SelectOptions(), selOptions));
+        this._selectOptions = Object.assign(new SelectOptions(), selOptions);
+        this.onChangeCallback(this._selectOptions);
     };
     __decorate([
         core_1.Input(), 
-        __metadata('design:type', Object)
+        __metadata('design:type', SelectOptions)
     ], RangeInputComponent.prototype, "_selectOptions", void 0);
     RangeInputComponent = __decorate([
         core_1.Component({

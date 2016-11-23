@@ -65,7 +65,7 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 	private _debounceTime = 400;
 	
 	@Input()
-	_selectOptions = {
+	_selectOptions: SelectOptions = {
 		optionsSelector: EQ,
 		lo: null,
 		hi: null,
@@ -138,7 +138,7 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 	}
 
 	ngOnChanges() {
-		console.log("on changes called");
+		// console.log("on changes called");
 	}	
 
 	private setInitialSelectOption()
@@ -188,8 +188,9 @@ export class RangeInputComponent implements OnInit, ControlValueAccessor, OnChan
 		return obj;
     }
 
-    private callChange(selOptions){
-    	this.onChangeCallback(Object.assign(new SelectOptions(), selOptions));
+    private callChange(selOptions: SelectOptions) {
+    	this._selectOptions = Object.assign(new SelectOptions(), selOptions);
+    	this.onChangeCallback(this._selectOptions);
     }
 }
 
